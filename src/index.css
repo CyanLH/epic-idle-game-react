@@ -12,8 +12,8 @@
   --color-accent: #ff1493;    /* DeepPink */
   --color-success: #ff69b4;
   
-  --font-main: 'Inter', sans-serif;
-  --font-display: 'M PLUS Rounded 1c', 'Comic Sans MS', cursive, sans-serif;
+  --font-main: 'Nunito', sans-serif;
+  --font-display: 'Fredoka', cursive, sans-serif;
   
   --shadow-soft: 0 8px 32px rgba(255, 105, 180, 0.15);
   --border-cute: 2px solid #ffb6c1; /* LightPink */
