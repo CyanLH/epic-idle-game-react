@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GENERATORS_DATA, UPGRADES_DATA } from '../config/gameData';
 import { STORY_EVENTS } from '../config/storyData';
+import { IDOL_CANDIDATES, META_PERKS } from '../config/prestigeData';
 
 const SAVE_KEY = 'anime_idle_save';
 
@@ -27,6 +28,11 @@ export interface GameState {
   // Story Events
   seenEvents: string[];
   activeEvent: string | null;
+
+  // Prestige & Meta Progression
+  unlockedIdols: string[];
+  currentIdolId: string;
+  metaPerks: Record<string, number>; // perkId -> level
 }
 
 export const useGameEngine = () => {
@@ -47,6 +53,9 @@ export const useGameEngine = () => {
     feverTimeLeft: 0,
     seenEvents: [],
     activeEvent: null,
+    unlockedIdols: ['idol_default'],
+    currentIdolId: 'idol_default',
+    metaPerks: {},
   });
 
   const lastTickTime = useRef(performance.now());
@@ -76,6 +85,9 @@ export const useGameEngine = () => {
           feverTimeLeft: 0,
           seenEvents: [],
           activeEvent: null,
+          unlockedIdols: ['idol_default'],
+          currentIdolId: 'idol_default',
+          metaPerks: {},
           ...parsed
         };
 
@@ -116,15 +128,36 @@ export const useGameEngine = () => {
     let baseIncome = 0;
 
     // Base prestige multiplier: each prestige currency gives +10% bonus
-    const prestigeMult = 1 + (currentState.prestigeCurrency * 0.1);
+    let prestigeMult = 1 + (currentState.prestigeCurrency * 0.1);
     
+    // Check Meta Perk: perk_passive_boost
+    const passiveBoostLevel = currentState.metaPerks['perk_passive_boost'] || 0;
+    if (passiveBoostLevel > 0) {
+       const boostPerk = META_PERKS.find(p => p.id === 'perk_passive_boost');
+       if (boostPerk) {
+         prestigeMult += (passiveBoostLevel * boostPerk.effectPerLevel);
+       }
+    }
+
     // Charm acts as a multiplier: Every 10 charm adds +5% income
     const charmMult = 1 + (currentState.charm * 0.005);
     
     // Fever mode gives x5 to everything
     const feverMult = currentState.feverTimeLeft > 0 ? 5 : 1;
     
-    const finalMult = prestigeMult * charmMult * feverMult;
+    let finalMult = prestigeMult * charmMult * feverMult;
+
+    // Check Current Idol Bonuses
+    const currentIdol = IDOL_CANDIDATES.find(i => i.id === currentState.currentIdolId);
+    let idolIncomeSubMult = 1;
+    let idolCharmSubMult = 1;
+    let idolAffectionSubMult = 1;
+
+    if (currentIdol && currentIdol.passiveBonusValue > 0) {
+      if (currentIdol.passiveBonusType === 'income') idolIncomeSubMult = currentIdol.passiveBonusValue;
+      if (currentIdol.passiveBonusType === 'charm') idolCharmSubMult = currentIdol.passiveBonusValue;
+      if (currentIdol.passiveBonusType === 'affection') idolAffectionSubMult = currentIdol.passiveBonusValue;
+    }
 
     UPGRADES_DATA.forEach(upg => {
       if (currentState.upgrades.includes(upg.id) && upg.type === 'click') {
@@ -146,11 +179,13 @@ export const useGameEngine = () => {
     });
 
     return { 
-      clickPower: clickPower * finalMult, 
-      incomePerSec: baseIncome * finalMult,
+      clickPower: clickPower * finalMult * idolIncomeSubMult, 
+      incomePerSec: baseIncome * finalMult * idolIncomeSubMult,
       prestigeMult,
       charmMult,
-      finalMult
+      finalMult,
+      idolCharmSubMult,
+      idolAffectionSubMult
     };
   }, []);
 
@@ -184,7 +219,14 @@ export const useGameEngine = () => {
         newFeverGauge += 3.33 * delta;
         if (newFeverGauge >= 100) {
           newFeverGauge = 0;
-          newFeverTimeLeft = 10; // 10 seconds of fever
+          // Apply fever duration meta perk
+          let baseDuration = 10;
+          const feverPerkLevel = current.metaPerks['perk_fever_duration'] || 0;
+          if (feverPerkLevel > 0) {
+             const feverPerk = META_PERKS.find(p => p.id === 'perk_fever_duration');
+             baseDuration += feverPerk ? feverPerkLevel * feverPerk.effectPerLevel : 0;
+          }
+          newFeverTimeLeft = baseDuration; 
         }
       }
 
@@ -200,12 +242,12 @@ export const useGameEngine = () => {
       } else if (currentAction === 'train') {
         newHp -= 8 * delta; // Train costs 8 HP/s
         // Train gives base charm based on clickPower
-        const trainGain = (currentStats.clickPower * 0.8) + (currentStats.incomePerSec * 0.01);
+        const trainGain = ((currentStats.clickPower * 0.8) + (currentStats.incomePerSec * 0.01)) * currentStats.idolCharmSubMult;
         newCharm += trainGain * delta; 
       } else if (currentAction === 'interact') {
         newHp -= 3 * delta; // Interact costs 3 HP/s
         // Interact gives base affection based on clickPower
-        const interactGain = (currentStats.clickPower * 0.5) + (currentStats.incomePerSec * 0.005);
+        const interactGain = ((currentStats.clickPower * 0.5) + (currentStats.incomePerSec * 0.005)) * currentStats.idolAffectionSubMult;
         newAffection += interactGain * delta;
       }
 
@@ -314,28 +356,40 @@ export const useGameEngine = () => {
     return Math.floor(state.totalData / 1000000);
   }, [state.totalData]);
 
-  const prestige = useCallback(() => {
+  const prestige = useCallback((newIdolId?: string) => {
     const earned = calculatePrestigeEarned();
-    if (earned <= 0) return;
+    // Allow zero earning if just changing idol without required hearts
+    
+    setState(current => {
+      // Apply start funds meta perk
+      let startingData = 0;
+      const startFundsLevel = current.metaPerks['perk_start_funds'] || 0;
+      if (startFundsLevel > 0) {
+        const startPerk = META_PERKS.find(p => p.id === 'perk_start_funds');
+        startingData = startPerk ? startFundsLevel * startPerk.effectPerLevel : 0;
+      }
 
-    setState(current => ({
-      data: 0,
-      totalData: 0,
-      generators: {},
-      upgrades: [],
-      lastSavedTime: Date.now(),
-      prestigeLevel: current.prestigeLevel + 1,
-      prestigeCurrency: current.prestigeCurrency + earned,
-      hp: 100,
-      maxHp: 100,
-      charm: 0,
-      affection: 0,
-      currentAction: 'idle',
-      feverGauge: 0,
-      feverTimeLeft: 0,
-      seenEvents: [],
-      activeEvent: null
-    }));
+      return {
+        ...current, // Keep prestige currency, meta perks, and unlocked idols
+        data: startingData,
+        totalData: startingData,
+        generators: {},
+        upgrades: [],
+        lastSavedTime: Date.now(),
+        prestigeLevel: current.prestigeLevel + 1,
+        prestigeCurrency: current.prestigeCurrency + earned,
+        hp: 100,
+        maxHp: 100,
+        charm: 0,
+        affection: 0,
+        currentAction: 'idle',
+        feverGauge: 0,
+        feverTimeLeft: 0,
+        seenEvents: [],
+        activeEvent: null,
+        currentIdolId: newIdolId || current.currentIdolId
+      }
+    });
   }, [calculatePrestigeEarned]);
 
   const handleStoryChoice = useCallback((eventId: string, charmReward: number, affectionReward: number, hpCost: number) => {
@@ -349,6 +403,47 @@ export const useGameEngine = () => {
     }));
   }, []);
 
+  const buyMetaPerk = useCallback((perkId: string) => {
+    const perk = META_PERKS.find(p => p.id === perkId);
+    if (!perk) return;
+
+    setState(current => {
+      const currentLevel = current.metaPerks[perkId] || 0;
+      if (currentLevel >= perk.maxLevel) return current;
+
+      const cost = Math.floor(perk.baseCost * Math.pow(perk.costMultiplier, currentLevel));
+      if (current.prestigeCurrency >= cost) {
+        return {
+          ...current,
+          prestigeCurrency: current.prestigeCurrency - cost,
+          metaPerks: {
+            ...current.metaPerks,
+            [perkId]: currentLevel + 1
+          }
+        };
+      }
+      return current;
+    });
+  }, []);
+
+  const unlockIdol = useCallback((idolId: string) => {
+    const idol = IDOL_CANDIDATES.find(i => i.id === idolId);
+    if (!idol) return;
+
+    setState(current => {
+      if (current.unlockedIdols.includes(idolId)) return current;
+      
+      if (current.prestigeCurrency >= idol.unlockCost) {
+        return {
+          ...current,
+          prestigeCurrency: current.prestigeCurrency - idol.unlockCost,
+          unlockedIdols: [...current.unlockedIdols, idolId]
+        };
+      }
+      return current;
+    });
+  }, []);
+
   return {
     state,
     stats,
@@ -360,5 +455,7 @@ export const useGameEngine = () => {
     calculatePrestigeEarned,
     prestige,
     handleStoryChoice,
+    buyMetaPerk,
+    unlockIdol,
   };
 };

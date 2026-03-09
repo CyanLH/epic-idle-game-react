@@ -5,10 +5,11 @@ import { Store } from './components/Store';
 import { Upgrades } from './components/Upgrades';
 import { STORY_EVENTS } from './config/storyData';
 import { StoryModal } from './components/StoryModal';
+import { PrestigeShop } from './components/PrestigeShop';
 import './App.css';
 
 function App() {
-  const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige, handleStoryChoice } = useGameEngine();
+  const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige, handleStoryChoice, buyMetaPerk, unlockIdol } = useGameEngine();
   const [activeTab, setActiveTab] = useState<'generators' | 'upgrades' | 'prestige' | 'ending'>('generators');
 
   // Helper to format large numbers
@@ -157,7 +158,8 @@ function App() {
             )}
 
             {activeTab === 'prestige' && (
-              <div className="prestige-container" style={{ padding: '20px', textAlign: 'center', background: 'white', borderRadius: '12px', border: 'var(--border-cute)' }}>
+              <>
+              <div className="prestige-container" style={{ padding: '20px', textAlign: 'center', background: 'white', borderRadius: '12px', border: 'var(--border-cute)', marginBottom: '20px' }}>
                 <h2 style={{ color: 'var(--color-primary)', marginBottom: '10px' }}>Idol Graduation (Prestige)</h2>
                 <p style={{ color: 'var(--text-dim)', marginBottom: '20px' }}>
                   Retire your current idol and start fresh! You will lose all Hearts, Promotions, and Outfits.
@@ -193,6 +195,14 @@ function App() {
                   GRADUATE NOW
                 </button>
               </div>
+              <PrestigeShop 
+                state={state} 
+                onBuyPerk={buyMetaPerk} 
+                onUnlockIdol={unlockIdol} 
+                onChangeIdol={prestige} // Using prestige function directly to handle idol swaps
+                formatNumber={formatNumber} 
+              />
+            </>
             )}
 
             {/* Ending Overlay Trigger */}
