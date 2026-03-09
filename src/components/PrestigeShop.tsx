@@ -6,17 +6,22 @@ interface PrestigeShopProps {
   state: GameState;
   onBuyPerk: (perkId: string) => void;
   onUnlockIdol: (idolId: string) => void;
-  onChangeIdol: (idolId: string) => void; // This will trigger prestige()
+  onChangeIdol: (idolId: string) => void; // 호출 시 즉시 졸업 처리가 함께 일어난다.
   formatNumber: (num: number) => string;
 }
 
 export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, onUnlockIdol, onChangeIdol, formatNumber }) => {
   const [subTab, setSubTab] = useState<'perks' | 'idols'>('perks');
+  const getBonusLabel = (idol: typeof IDOL_CANDIDATES[number]) => {
+    if (idol.passiveBonusType === 'income') return '추가 보너스 없음';
+    if (idol.passiveBonusType === 'charm') return `매력 획득 x${idol.passiveBonusValue}`;
+    return `호감도 획득 x${idol.passiveBonusValue}`;
+  };
 
   return (
     <div className="prestige-shop" style={{ padding: '10px' }}>
       <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', marginBottom: '20px', textAlign: 'center' }}>
-        <h3 style={{ color: 'var(--color-primary)', margin: 0 }}>Available Prestige Currency</h3>
+        <h3 style={{ color: 'var(--color-primary)', margin: 0 }}>보유 명성</h3>
         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-main)', marginTop: '8px' }}>
           ⭐ {formatNumber(state.prestigeCurrency)}
         </div>
@@ -28,14 +33,14 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
           onClick={() => setSubTab('perks')}
           style={{ padding: '8px', fontSize: '0.9rem' }}
         >
-          Meta Perks
+          메타 특전
         </button>
         <button 
           className={`tab-btn ${subTab === 'idols' ? 'active' : ''}`}
           onClick={() => setSubTab('idols')}
           style={{ padding: '8px', fontSize: '0.9rem' }}
         >
-          Idol Selection
+          아이돌 선택
         </button>
       </div>
 
@@ -50,10 +55,10 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
             return (
               <div key={perk.id} className={`store-item ${!canAfford ? 'disabled' : ''}`} onClick={() => canAfford && onBuyPerk(perk.id)}>
                 <div className="item-info">
-                  <div className="item-name">{perk.name} <span style={{fontSize:'0.8rem', color:'var(--color-primary)'}}>Lv.{currentLevel}/{perk.maxLevel}</span></div>
+                  <div className="item-name">{perk.name} <span style={{fontSize:'0.8rem', color:'var(--color-primary)'}}>레벨 {currentLevel}/{perk.maxLevel}</span></div>
                   <div className="item-desc">{perk.desc}</div>
                   <div className="item-cost">
-                    Cost: <span className={state.prestigeCurrency >= cost ? 'cost-val-active' : 'cost-val'}>{isMax ? 'MAX' : `⭐ ${formatNumber(cost)}`}</span>
+                    비용: <span className={state.prestigeCurrency >= cost ? 'cost-val-active' : 'cost-val'}>{isMax ? '최대' : `⭐ ${formatNumber(cost)}`}</span>
                   </div>
                 </div>
               </div>
@@ -65,7 +70,7 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
       {subTab === 'idols' && (
         <div className="store-list">
           <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)', marginBottom: '12px', textAlign: 'center' }}>
-            Warning: Changing idol will instantly graduate your current run and restart from 0 Hearts!
+            아이돌을 변경하면 현재 진행 중인 플레이가 즉시 졸업 처리되고 0 하트부터 다시 시작합니다.
           </p>
           {IDOL_CANDIDATES.map(idol => {
             const isUnlocked = state.unlockedIdols.includes(idol.id);
@@ -79,34 +84,34 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
                   <div className="item-name">{idol.name}</div>
                   <div className="item-desc">{idol.desc}</div>
                   <div style={{ fontSize:'0.8rem', color: 'var(--color-secondary)' }}>
-                    Bonus: {idol.passiveBonusType === 'income' ? 'None' : `${idol.passiveBonusType} x${idol.passiveBonusValue}`}
+                    보너스: {getBonusLabel(idol)}
                   </div>
                 </div>
                 <div style={{ marginLeft: '12px' }}>
                   {isCurrent ? (
-                    <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>Active</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>선택됨</span>
                   ) : isUnlocked ? (
                     <button 
                       onClick={() => {
-                        if (window.confirm(`Switch to ${idol.name}? This will instantly restart your current game.`)) {
+                        if (window.confirm(`${idol.name}(으)로 변경할까요? 현재 플레이는 즉시 다시 시작됩니다.`)) {
                           onChangeIdol(idol.id);
                         }
                       }}
                       style={{ padding: '8px 12px', background: 'var(--color-secondary)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
                     >
-                      Select
+                      선택
                     </button>
                   ) : (
                     <button 
                       onClick={() => {
-                        if (canAfford && window.confirm(`Unlock ${idol.name} for ⭐${idol.unlockCost}?`)) {
+                        if (canAfford && window.confirm(`${idol.name}을(를) ⭐${idol.unlockCost}에 해금할까요?`)) {
                           onUnlockIdol(idol.id);
                         }
                       }}
                       disabled={!canAfford}
                       style={{ padding: '8px 12px', background: canAfford ? 'var(--color-primary)' : '#ccc', color: 'white', border: 'none', borderRadius: '8px', cursor: canAfford ? 'pointer' : 'not-allowed' }}
                     >
-                      Unlock ⭐{idol.unlockCost}
+                      해금 ⭐{idol.unlockCost}
                     </button>
                   )}
                 </div>

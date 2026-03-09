@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import type { GameState } from '../hooks/useGameEngine';
+import { MAX_AFFECTION } from '../config/balance';
 
 interface ClickerAreaProps {
   state: GameState;
@@ -48,19 +49,17 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
   }, [state.currentAction, state.feverTimeLeft]);
 
   const determineSprite = useMemo(() => {
-    // 1. Endings / Branches
-    // If Affection is super high and they bought the final ending upgrade (placeholder logic for now)
-    if (state.affection >= 1000) {
+    // 1. 엔딩과 분기 우선 처리
+    // 호감도가 최대치이고 최종 업그레이드를 구매했다면 엔딩 스프라이트를 보여준다.
+    if (state.affection >= MAX_AFFECTION) {
       if (state.upgrades.includes('upg_romance')) {
         return '/idol_ending_romance.png';
       }
     }
 
-    // 2. Evolution Branches (e.g. at 50 Charm or 1M total hearts)
+    // 2. 진화 분기 처리
     if (state.totalData > 1000000 || state.charm > 50) {
-      // Determine branch based on upgrades or a hidden stat ratio. For now, let's use Charm > 100 for cute, else cool?
-      // Actually, if we just have two, let's make it random based on ID or let them buy a class change upgrade.
-      // We will default to Cute for High Charm, Cool for High Affection just as a demonstration
+      // 현재는 매력 우세면 큐트, 호감도 우세면 쿨 분기로 단순 처리한다.
       if (state.charm > state.affection) {
         return '/idol_branch_cute.png';
       } else {
@@ -68,9 +67,9 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
       }
     }
 
-    // 3. Base States depending on currentAction and HP
+    // 3. 기본 상태
     if (state.hp < 20 && state.hp > 0) {
-      return '/idol_base_tired.png'; // Sweating, tired
+      return '/idol_base_tired.png'; // 피곤한 상태
     }
     
     switch (state.currentAction) {
@@ -79,7 +78,7 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
       case 'train':
         return '/idol_base_training.png';
       case 'cheer':
-        // If HP is high and doing cheer, be happy
+        // 체력이 충분할 때 응원 중이면 더 밝은 표정을 사용한다.
         return state.hp > 50 ? '/idol_base_happy.png' : '/idol_base_normal.png';
       case 'interact':
          return '/idol_base_happy.png';
@@ -101,14 +100,14 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
           
           <img 
             src={determineSprite} 
-            alt="Anime Waifu" 
+            alt="아이돌 캐릭터" 
             className="waifu-image" 
             draggable="false"
             style={{ 
               maxHeight: '100%', 
               maxWidth: '100%', 
               objectFit: 'contain',
-              // Add a subtle bounce if cheering
+              // 응원이나 피버 상태에서는 살짝 튀는 모션을 준다.
               animation: state.currentAction === 'cheer' || state.feverTimeLeft > 0 ? 'bounce 0.5s infinite alternate' : 'none'
             }}
           />

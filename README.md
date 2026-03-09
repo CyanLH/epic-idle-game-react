@@ -1,73 +1,76 @@
-# React + TypeScript + Vite
+# 아이돌 육성 클리커
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React, TypeScript, Vite로 만든 방치형 아이돌 육성 게임이에요. 하트를 모으고, 프로모션을 넓히고, 의상을 해금하면서 아이돌의 매력과 호감도를 차근차근 키워갈 수 있어요. 일정 단계에 도달하면 스토리 이벤트와 특별 엔딩도 열리고, 졸업 시스템을 통해 다음 회차 성장까지 이어갈 수 있어요.
 
-Currently, two official plugins are available:
+## 주요 시스템
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- `응원`, `휴식`, `훈련`, `소통` 네 가지 행동을 중심으로 진행돼요.
+- 하트로 프로모션을 구매해서 초당 수익을 점점 키울 수 있어요.
+- 의상 업그레이드로 행동 효율을 더 강하게 만들 수 있어요.
+- `매력`은 수익 배율에 영향을 주고, `호감도`는 스토리와 엔딩 해금에 쓰여요.
+- 행동을 이어가면 피버 게이지가 차오르고, 피버 상태에서는 모든 효율이 크게 올라가요.
+- 스토리 선택지에 따라 매력, 호감도, 체력이 달라져요.
+- 졸업 후에는 메타 특전과 신규 아이돌도 해금할 수 있어요.
+- 세이브 데이터는 `localStorage`에 자동 저장되고, 오프라인 수익도 적용돼요.
 
-## React Compiler
+## 현재 밸런스 기준
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- 매력 상한: `200`
+- 호감도 상한: `1000`
+- 호감도 `1000`을 달성한 뒤 고백 의상을 구매하면 특별 엔딩이 열려요.
+- 기존 세이브 데이터가 상한을 넘고 있어도 로드할 때 자동으로 보정돼요.
 
-## Expanding the ESLint configuration
+## 기술 스택
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19
+- TypeScript
+- Vite 7
+- ESLint
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 실행 방법
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+기타 스크립트:
+
+```bash
+npm run lint
+npm run build
+npm run preview
+```
+
+## 개발 환경 메모
+
+- Vite 7 기준으로 Node.js `20.19+` 또는 `22.12+` 환경을 권장해요.
+- 현재 세이브 키는 `anime_idle_save`예요.
+- 세이브를 초기화하고 싶다면 브라우저 개발자 도구 콘솔에서 아래 명령을 실행하면 돼요.
 
 ```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+localStorage.removeItem('anime_idle_save')
 ```
+
+## 디렉터리 개요
+
+```text
+src/
+  components/     UI 컴포넌트
+  config/         게임 밸런스, 스토리, 프레스티지 데이터
+  hooks/          핵심 게임 루프와 상태 관리
+  App.tsx         메인 화면 조합
+public/           캐릭터 이미지와 정적 리소스
+```
+
+## 게임 흐름
+
+1. 응원으로 하트를 모아요.
+2. 프로모션을 구매해 자동 수익을 키워요.
+3. 훈련과 소통으로 매력과 호감도를 올려요.
+4. 피버와 스토리 이벤트를 활용해 성장 효율을 높여요.
+5. 충분한 누적 하트를 달성하면 졸업하고 메타 성장을 이어가요.
+
+## 비고
+
+초기 프로젝트 골격은 생성형 AI로 빠르게 구성된 형태이고, 지금은 밸런스 조정과 한국어 현지화, 문서 정리를 중심으로 조금씩 다듬어가고 있어요.

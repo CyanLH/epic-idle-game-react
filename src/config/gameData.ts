@@ -22,8 +22,8 @@ export interface UpgradeData {
 export const GENERATORS_DATA: GeneratorData[] = [
   {
     id: "gen_fan",
-    name: "Loyal Fan",
-    desc: "Cheerfully gives you hearts.",
+    name: "열혈 팬",
+    desc: "하트를 꾸준히 모아주는 기본 팬층입니다.",
     baseCost: 15,
     costMultiplier: 1.15,
     baseIncome: 1,
@@ -31,8 +31,8 @@ export const GENERATORS_DATA: GeneratorData[] = [
   },
   {
     id: "gen_flyer",
-    name: "Flyer Campaign",
-    desc: "Hire students to hand out flyers.",
+    name: "전단지 홍보",
+    desc: "거리 홍보 인력을 고용해 팬을 늘립니다.",
     baseCost: 100,
     costMultiplier: 1.15,
     baseIncome: 5,
@@ -40,8 +40,8 @@ export const GENERATORS_DATA: GeneratorData[] = [
   },
   {
     id: "gen_social",
-    name: "Social Media Manager",
-    desc: "Posts cute selfies constantly.",
+    name: "SNS 매니저",
+    desc: "SNS를 관리하며 꾸준히 화제를 만듭니다.",
     baseCost: 1100,
     costMultiplier: 1.15,
     baseIncome: 50,
@@ -49,8 +49,8 @@ export const GENERATORS_DATA: GeneratorData[] = [
   },
   {
     id: "gen_merch",
-    name: "Merch Store",
-    desc: "Sells acrylic stands and posters.",
+    name: "굿즈 스토어",
+    desc: "아크릴 스탠드와 포스터를 판매합니다.",
     baseCost: 12000,
     costMultiplier: 1.15,
     baseIncome: 400,
@@ -58,8 +58,8 @@ export const GENERATORS_DATA: GeneratorData[] = [
   },
   {
     id: "gen_concert",
-    name: "Live Concert",
-    desc: "Massive stadium performance.",
+    name: "대형 콘서트",
+    desc: "대형 공연으로 폭발적인 인기를 끌어냅니다.",
     baseCost: 130000,
     costMultiplier: 1.15,
     baseIncome: 3000,
@@ -70,8 +70,8 @@ export const GENERATORS_DATA: GeneratorData[] = [
 export const UPGRADES_DATA: UpgradeData[] = [
   {
     id: "upg_click_1",
-    name: "Cute Wink",
-    desc: "Clicking power x2",
+    name: "상큼한 윙크",
+    desc: "기본 행동 효율 x2",
     cost: 100,
     icon: "😉",
     type: "click",
@@ -79,8 +79,8 @@ export const UPGRADES_DATA: UpgradeData[] = [
   },
   {
     id: "upg_fan_1",
-    name: "Glow Sticks",
-    desc: "Loyal Fans work 2x better",
+    name: "응원봉 물결",
+    desc: "열혈 팬 수익 x2",
     cost: 500,
     icon: "✨",
     type: "generator",
@@ -89,8 +89,8 @@ export const UPGRADES_DATA: UpgradeData[] = [
   },
   {
     id: "upg_click_2",
-    name: "Idol Outfit",
-    desc: "Clicking power x3",
+    name: "무대 의상",
+    desc: "기본 행동 효율 x3",
     cost: 2500,
     icon: "👗",
     type: "click",
@@ -98,8 +98,8 @@ export const UPGRADES_DATA: UpgradeData[] = [
   },
   {
     id: "upg_social_1",
-    name: "Viral Tiktok",
-    desc: "Social Media handles 2x more",
+    name: "바이럴 숏폼",
+    desc: "SNS 매니저 수익 x2",
     cost: 5000,
     icon: "🎵",
     type: "generator",
@@ -108,11 +108,11 @@ export const UPGRADES_DATA: UpgradeData[] = [
   },
   {
     id: "upg_romance",
-    name: "Confession",
-    desc: "Confess your feelings (Requires 1000 Affection)",
+    name: "고백",
+    desc: "마음을 전합니다 (호감도 1000 필요)",
     cost: 1000000,
     icon: "💍",
-    type: "click", // Using 'click' as a generic type here since it just needs to be bought
+    type: "click", // 구매 조건만 체크하면 되므로 공용 타입을 사용한다.
     multiplier: 1
   }
 ];
