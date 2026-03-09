@@ -54,6 +54,16 @@ function App() {
               </div>
               <span>{Math.floor(state.hp)}/{state.maxHp}</span>
             </div>
+            {/* FEVER GAUGE */}
+            <div className="stat-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <strong style={{ color: '#ff4500', animation: state.feverTimeLeft > 0 ? 'pulse 0.5s infinite alternate' : 'none' }}>🔥 FEVER:</strong>
+              <div style={{ flex: 1, margin: '0 10px', height: '12px', background: '#eee', borderRadius: '6px', overflow: 'hidden', border: state.feverTimeLeft > 0 ? '1px solid gold' : 'none' }}>
+                 <div style={{ height: '100%', width: `${state.feverTimeLeft > 0 ? (state.feverTimeLeft / 10) * 100 : state.feverGauge}%`, background: state.feverTimeLeft > 0 ? 'linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)' : '#ff4500', transition: state.feverTimeLeft > 0 ? 'none' : 'width 0.2s', backgroundSize: '200% 200%', animation: state.feverTimeLeft > 0 ? 'rainbowMove 1s linear infinite' : 'none' }}></div>
+              </div>
+              <span style={{ width: '45px', textAlign: 'right', fontWeight: state.feverTimeLeft > 0 ? 'bold' : 'normal', color: state.feverTimeLeft > 0 ? '#ff4500' : 'inherit' }}>
+                {state.feverTimeLeft > 0 ? `${state.feverTimeLeft.toFixed(1)}s` : `${Math.floor(state.feverGauge)}%`}
+              </span>
+            </div>
             <div className="stat-row" style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#8a2be2', fontWeight: 'bold' }}>✨ Charm:</span>
               <span>{Math.floor(state.charm)} (x{stats.charmMult.toFixed(2)})</span>

@@ -18,6 +18,10 @@ export interface GameState {
   charm: number;
   affection: number;
   currentAction: 'idle' | 'cheer' | 'rest' | 'train' | 'interact';
+  
+  // Game Feel Stats
+  feverGauge: number;
+  feverTimeLeft: number;
 }
 
 export const useGameEngine = () => {
@@ -34,6 +38,8 @@ export const useGameEngine = () => {
     charm: 0,
     affection: 0,
     currentAction: 'idle',
+    feverGauge: 0,
+    feverTimeLeft: 0,
   });
 
   const lastTickTime = useRef(performance.now());
@@ -59,6 +65,8 @@ export const useGameEngine = () => {
           charm: 0,
           affection: 0,
           currentAction: 'idle',
+          feverGauge: 0,
+          feverTimeLeft: 0,
           ...parsed
         };
 
@@ -103,7 +111,11 @@ export const useGameEngine = () => {
     
     // Charm acts as a multiplier: Every 10 charm adds +5% income
     const charmMult = 1 + (currentState.charm * 0.005);
-    const finalMult = prestigeMult * charmMult;
+    
+    // Fever mode gives x5 to everything
+    const feverMult = currentState.feverTimeLeft > 0 ? 5 : 1;
+    
+    const finalMult = prestigeMult * charmMult * feverMult;
 
     UPGRADES_DATA.forEach(upg => {
       if (currentState.upgrades.includes(upg.id) && upg.type === 'click') {
@@ -149,6 +161,23 @@ export const useGameEngine = () => {
       let newData = current.data;
       let newTotalData = current.totalData;
       let currentAction = current.currentAction;
+      let newFeverGauge = current.feverGauge;
+      let newFeverTimeLeft = current.feverTimeLeft;
+
+      // Handle Fever State
+      if (newFeverTimeLeft > 0) {
+        newFeverTimeLeft -= delta;
+        if (newFeverTimeLeft <= 0) {
+          newFeverTimeLeft = 0;
+        }
+      } else if (currentAction !== 'idle' && currentAction !== 'rest') {
+        // Build fever gauge during active actions (approx 30 seconds to fill)
+        newFeverGauge += 3.33 * delta;
+        if (newFeverGauge >= 100) {
+          newFeverGauge = 0;
+          newFeverTimeLeft = 10; // 10 seconds of fever
+        }
+      }
 
       // Handle HP Drain and Regen
       if (currentAction === 'cheer') {
@@ -186,7 +215,9 @@ export const useGameEngine = () => {
         affection: newAffection,
         data: newData,
         totalData: newTotalData,
-        currentAction
+        currentAction,
+        feverGauge: newFeverGauge,
+        feverTimeLeft: newFeverTimeLeft
       };
     });
 
@@ -278,7 +309,9 @@ export const useGameEngine = () => {
       maxHp: 100,
       charm: 0,
       affection: 0,
-      currentAction: 'idle'
+      currentAction: 'idle',
+      feverGauge: 0,
+      feverTimeLeft: 0
     }));
   }, [calculatePrestigeEarned]);
 

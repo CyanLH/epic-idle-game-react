@@ -1,11 +1,51 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import type { GameState } from '../hooks/useGameEngine';
 
 interface ClickerAreaProps {
   state: GameState;
 }
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  text: string;
+  rotation: number;
+}
+
 export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
+
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const particleIdCounter = useRef(0);
+
+  useEffect(() => {
+    let interval: number;
+    const isFever = state.feverTimeLeft > 0;
+    const isActive = state.currentAction === 'cheer' || state.currentAction === 'train' || state.currentAction === 'interact';
+    
+    if (isActive || isFever) {
+      const spawnRate = isFever ? 100 : 800; // spawn every 100ms in fever, 800ms normally
+      interval = window.setInterval(() => {
+        const id = particleIdCounter.current++;
+        const x = 10 + Math.random() * 80; // 10% to 90% width
+        const y = 20 + Math.random() * 60; // 20% to 80% height
+        const emojis = ['💖', '✨', '🎵', '⭐', '💕', '🔥'];
+        const text = emojis[Math.floor(Math.random() * emojis.length)];
+        const rotation = Math.random() * 60 - 30;
+        
+        setParticles(p => [...p, { id, x, y, text, rotation }]);
+        
+        // Auto remove
+        setTimeout(() => {
+          setParticles(p => p.filter(particle => particle.id !== id));
+        }, 1000);
+      }, spawnRate);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [state.currentAction, state.feverTimeLeft]);
 
   const determineSprite = useMemo(() => {
     // 1. Endings / Branches
@@ -52,12 +92,12 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
   return (
     <>
       <div 
-        className="clicker-area" 
+        className={`clicker-area ${state.feverTimeLeft > 0 ? 'fever-shake' : ''}`} 
         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', position: 'relative' }}
       >
         <div className="waifu-container" style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', transition: 'all 0.5s' }}>
           {/* Pulsing glow behind the anime girl */}
-          <div className="waifu-glow"></div>
+          <div className={`waifu-glow ${state.feverTimeLeft > 0 ? 'fever-glow' : ''}`}></div>
           
           <img 
             src={determineSprite} 
@@ -69,9 +109,26 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
               maxWidth: '100%', 
               objectFit: 'contain',
               // Add a subtle bounce if cheering
-              animation: state.currentAction === 'cheer' ? 'bounce 0.5s infinite alternate' : 'none'
+              animation: state.currentAction === 'cheer' || state.feverTimeLeft > 0 ? 'bounce 0.5s infinite alternate' : 'none'
             }}
           />
+
+          {/* Particles */}
+          {particles.map(p => (
+            <div 
+              key={p.id}
+              className="floating-heart-text"
+              style={{
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                fontSize: state.feverTimeLeft > 0 ? '3rem' : '1.5rem',
+                transform: `rotate(${p.rotation}deg)`,
+                zIndex: 100
+              }}
+            >
+              {p.text}
+            </div>
+          ))}
         </div>
       </div>
     </>
