@@ -3,10 +3,12 @@ import { useGameEngine } from './hooks/useGameEngine';
 import { ClickerArea } from './components/ClickerArea';
 import { Store } from './components/Store';
 import { Upgrades } from './components/Upgrades';
+import { STORY_EVENTS } from './config/storyData';
+import { StoryModal } from './components/StoryModal';
 import './App.css';
 
 function App() {
-  const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige } = useGameEngine();
+  const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige, handleStoryChoice } = useGameEngine();
   const [activeTab, setActiveTab] = useState<'generators' | 'upgrades' | 'prestige' | 'ending'>('generators');
 
   // Helper to format large numbers
@@ -216,6 +218,14 @@ function App() {
         )}
 
       </main>
+
+      {/* Story Event Modal Overlay */}
+      {state.activeEvent && (
+        <StoryModal 
+          event={STORY_EVENTS.find(e => e.id === state.activeEvent)!} 
+          onChoice={handleStoryChoice} 
+        />
+      )}
     </div>
   );
 }

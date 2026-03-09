@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { GENERATORS_DATA, UPGRADES_DATA } from '../config/gameData';
+import { STORY_EVENTS } from '../config/storyData';
 
 const SAVE_KEY = 'anime_idle_save';
 
@@ -22,6 +23,10 @@ export interface GameState {
   // Game Feel Stats
   feverGauge: number;
   feverTimeLeft: number;
+
+  // Story Events
+  seenEvents: string[];
+  activeEvent: string | null;
 }
 
 export const useGameEngine = () => {
@@ -40,6 +45,8 @@ export const useGameEngine = () => {
     currentAction: 'idle',
     feverGauge: 0,
     feverTimeLeft: 0,
+    seenEvents: [],
+    activeEvent: null,
   });
 
   const lastTickTime = useRef(performance.now());
@@ -67,6 +74,8 @@ export const useGameEngine = () => {
           currentAction: 'idle',
           feverGauge: 0,
           feverTimeLeft: 0,
+          seenEvents: [],
+          activeEvent: null,
           ...parsed
         };
 
@@ -207,6 +216,17 @@ export const useGameEngine = () => {
         currentAction = 'rest'; // Forced rest
       }
 
+      // Check Story Events Trigger
+      let newActiveEvent = current.activeEvent;
+      if (!newActiveEvent) {
+        for (const evt of STORY_EVENTS) {
+          if (newAffection >= evt.triggerAffection && !current.seenEvents.includes(evt.id)) {
+            newActiveEvent = evt.id;
+            break; // Triggers only one event at a time
+          }
+        }
+      }
+
       // Only update state if something changed to prevent unnecessary renders, though requestAnimationFrame will trigger a lot anyway
       return {
         ...current,
@@ -217,7 +237,8 @@ export const useGameEngine = () => {
         totalData: newTotalData,
         currentAction,
         feverGauge: newFeverGauge,
-        feverTimeLeft: newFeverTimeLeft
+        feverTimeLeft: newFeverTimeLeft,
+        activeEvent: newActiveEvent
       };
     });
 
@@ -311,9 +332,22 @@ export const useGameEngine = () => {
       affection: 0,
       currentAction: 'idle',
       feverGauge: 0,
-      feverTimeLeft: 0
+      feverTimeLeft: 0,
+      seenEvents: [],
+      activeEvent: null
     }));
   }, [calculatePrestigeEarned]);
+
+  const handleStoryChoice = useCallback((eventId: string, charmReward: number, affectionReward: number, hpCost: number) => {
+    setState(current => ({
+      ...current,
+      charm: current.charm + charmReward,
+      affection: current.affection + affectionReward,
+      hp: Math.min(current.maxHp, current.hp - hpCost), // If negative cost, it heals
+      seenEvents: [...current.seenEvents, eventId],
+      activeEvent: null
+    }));
+  }, []);
 
   return {
     state,
@@ -325,5 +359,6 @@ export const useGameEngine = () => {
     buyUpgrade,
     calculatePrestigeEarned,
     prestige,
+    handleStoryChoice,
   };
 };
