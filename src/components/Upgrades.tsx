@@ -1,14 +1,16 @@
 import React from 'react';
 import { UPGRADES_DATA } from '../config/gameData';
 import type { GameState } from '../hooks/useGameEngine';
+import type { SoundEffectKey } from '../hooks/useSoundEffects';
 
 interface UpgradesProps {
   state: GameState;
   onBuy: (id: string) => void;
+  onPlaySound: (effect: SoundEffectKey) => void;
   formatNumber: (n: number) => string;
 }
 
-export const Upgrades: React.FC<UpgradesProps> = ({ state, onBuy, formatNumber }) => {
+export const Upgrades: React.FC<UpgradesProps> = ({ state, onBuy, onPlaySound, formatNumber }) => {
   return (
     <div className="grid-list">
       {UPGRADES_DATA.map(upg => {
@@ -21,7 +23,15 @@ export const Upgrades: React.FC<UpgradesProps> = ({ state, onBuy, formatNumber }
           <div 
             key={upg.id} 
             className={`upgrade-item ${canAfford ? '' : 'disabled'}`}
-            onClick={() => onBuy(upg.id)}
+            onClick={() => {
+              if (!canAfford) {
+                onPlaySound('error');
+                return;
+              }
+
+              onBuy(upg.id);
+              onPlaySound('purchase');
+            }}
             title={upg.desc}
           >
             <div className="upgrade-icon">{upg.icon}</div>

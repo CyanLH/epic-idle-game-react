@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import type { GameState } from '../hooks/useGameEngine';
 import { META_PERKS, IDOL_CANDIDATES } from '../config/prestigeData';
+import type { SoundEffectKey } from '../hooks/useSoundEffects';
 
 interface PrestigeShopProps {
   state: GameState;
   onBuyPerk: (perkId: string) => void;
   onUnlockIdol: (idolId: string) => void;
   onChangeIdol: (idolId: string) => void; // 호출 시 즉시 졸업 처리가 함께 일어난다.
+  onPlaySound: (effect: SoundEffectKey) => void;
   formatNumber: (num: number) => string;
 }
 
-export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, onUnlockIdol, onChangeIdol, formatNumber }) => {
+export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, onUnlockIdol, onChangeIdol, onPlaySound, formatNumber }) => {
   const [subTab, setSubTab] = useState<'perks' | 'idols'>('perks');
   const getBonusLabel = (idol: typeof IDOL_CANDIDATES[number]) => {
     if (idol.passiveBonusType === 'income') return '추가 보너스 없음';
@@ -30,14 +32,20 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
       <div className="tabs" style={{ marginBottom: '16px' }}>
         <button 
           className={`tab-btn ${subTab === 'perks' ? 'active' : ''}`}
-          onClick={() => setSubTab('perks')}
+          onClick={() => {
+            setSubTab('perks');
+            onPlaySound('action');
+          }}
           style={{ padding: '8px', fontSize: '0.9rem' }}
         >
           메타 특전
         </button>
         <button 
           className={`tab-btn ${subTab === 'idols' ? 'active' : ''}`}
-          onClick={() => setSubTab('idols')}
+          onClick={() => {
+            setSubTab('idols');
+            onPlaySound('action');
+          }}
           style={{ padding: '8px', fontSize: '0.9rem' }}
         >
           아이돌 선택
@@ -53,7 +61,19 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
             const canAfford = state.prestigeCurrency >= cost && !isMax;
 
             return (
-              <div key={perk.id} className={`store-item ${!canAfford ? 'disabled' : ''}`} onClick={() => canAfford && onBuyPerk(perk.id)}>
+              <div
+                key={perk.id}
+                className={`store-item ${!canAfford ? 'disabled' : ''}`}
+                onClick={() => {
+                  if (!canAfford) {
+                    onPlaySound('error');
+                    return;
+                  }
+
+                  onBuyPerk(perk.id);
+                  onPlaySound('purchase');
+                }}
+              >
                 <div className="item-info">
                   <div className="item-name">{perk.name} <span style={{fontSize:'0.8rem', color:'var(--color-primary)'}}>레벨 {currentLevel}/{perk.maxLevel}</span></div>
                   <div className="item-desc">{perk.desc}</div>
@@ -94,6 +114,7 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
                     <button 
                       onClick={() => {
                         if (window.confirm(`${idol.name}(으)로 변경할까요? 현재 플레이는 즉시 다시 시작됩니다.`)) {
+                          onPlaySound('prestige');
                           onChangeIdol(idol.id);
                         }
                       }}
@@ -106,6 +127,7 @@ export const PrestigeShop: React.FC<PrestigeShopProps> = ({ state, onBuyPerk, on
                       onClick={() => {
                         if (canAfford && window.confirm(`${idol.name}을(를) ⭐${idol.unlockCost}에 해금할까요?`)) {
                           onUnlockIdol(idol.id);
+                          onPlaySound('unlock');
                         }
                       }}
                       disabled={!canAfford}

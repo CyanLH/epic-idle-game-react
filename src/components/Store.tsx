@@ -1,15 +1,17 @@
 import React from 'react';
 import { GENERATORS_DATA } from '../config/gameData';
 import type { GameState } from '../hooks/useGameEngine';
+import type { SoundEffectKey } from '../hooks/useSoundEffects';
 
 interface StoreProps {
   state: GameState;
   getGeneratorCost: (id: string) => number;
   onBuy: (id: string) => void;
+  onPlaySound: (effect: SoundEffectKey) => void;
   formatNumber: (n: number) => string;
 }
 
-export const Store: React.FC<StoreProps> = ({ state, getGeneratorCost, onBuy, formatNumber }) => {
+export const Store: React.FC<StoreProps> = ({ state, getGeneratorCost, onBuy, onPlaySound, formatNumber }) => {
   return (
     <div className="store-list">
       {GENERATORS_DATA.map(gen => {
@@ -21,7 +23,15 @@ export const Store: React.FC<StoreProps> = ({ state, getGeneratorCost, onBuy, fo
           <div 
             key={gen.id} 
             className={`store-item ${canAfford ? '' : 'disabled'}`}
-            onClick={() => onBuy(gen.id)}
+            onClick={() => {
+              if (!canAfford) {
+                onPlaySound('error');
+                return;
+              }
+
+              onBuy(gen.id);
+              onPlaySound('purchase');
+            }}
           >
             <div className="item-icon">{gen.icon}</div>
             <div className="item-info">

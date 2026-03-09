@@ -29,6 +29,29 @@ h1 {
   margin-top: 4px;
 }
 
+.sound-toggle {
+  margin-top: 12px;
+  border: 2px solid rgba(255, 105, 180, 0.25);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-primary);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.sound-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(255, 105, 180, 0.18);
+  border-color: rgba(255, 105, 180, 0.45);
+}
+
+.sound-toggle.muted {
+  color: var(--text-dim);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
 /* --- Main Grid --- */
 .game-container {
   display: flex;
@@ -397,4 +420,3 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
-

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameEngine } from './hooks/useGameEngine';
 import { ClickerArea } from './components/ClickerArea';
 import { Store } from './components/Store';
@@ -7,11 +7,18 @@ import { STORY_EVENTS } from './config/storyData';
 import { StoryModal } from './components/StoryModal';
 import { PrestigeShop } from './components/PrestigeShop';
 import { MAX_AFFECTION } from './config/balance';
+import { useSoundEffects } from './hooks/useSoundEffects';
 import './App.css';
 
 function App() {
   const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige, handleStoryChoice, buyMetaPerk, unlockIdol } = useGameEngine();
   const [activeTab, setActiveTab] = useState<'generators' | 'upgrades' | 'prestige' | 'ending'>('generators');
+  const { soundEnabled, setSoundEnabled, playSound } = useSoundEffects();
+  const soundStateRef = useRef({
+    activeEvent: null as string | null,
+    endingUnlocked: false,
+    feverActive: false,
+  });
 
   // 큰 수를 짧은 영어 단위로 축약한다.
   const formatNumber = (num: number) => {
@@ -21,6 +28,40 @@ function App() {
     let shortValue = parseFloat((num / Math.pow(1000, suffixNum)).toPrecision(3));
     if (shortValue % 1 !== 0) shortValue = Number(shortValue.toFixed(1));
     return shortValue + suffixes[suffixNum];
+  };
+
+  const endingUnlocked = state.affection >= MAX_AFFECTION && state.upgrades.includes('upg_romance');
+
+  useEffect(() => {
+    const previousState = soundStateRef.current;
+    const feverActive = state.feverTimeLeft > 0;
+
+    if (state.activeEvent && previousState.activeEvent !== state.activeEvent) {
+      playSound('story');
+    }
+
+    if (feverActive && !previousState.feverActive) {
+      playSound('fever');
+    }
+
+    if (endingUnlocked && !previousState.endingUnlocked) {
+      playSound('ending');
+    }
+
+    soundStateRef.current = {
+      activeEvent: state.activeEvent,
+      endingUnlocked,
+      feverActive,
+    };
+  }, [endingUnlocked, playSound, state.activeEvent, state.feverTimeLeft]);
+
+  const handleSoundToggle = () => {
+    const nextEnabled = !soundEnabled;
+    setSoundEnabled(nextEnabled);
+
+    if (nextEnabled) {
+      playSound('toggle', { force: true });
+    }
   };
 
   return (
@@ -35,6 +76,9 @@ function App() {
             졸업 단계: {state.prestigeLevel} | 추가 보너스: +{(state.prestigeCurrency * 10).toFixed(0)}%
           </div>
         )}
+        <button className={`sound-toggle ${soundEnabled ? '' : 'muted'}`} onClick={handleSoundToggle}>
+          {soundEnabled ? '🔊 효과음 켜짐' : '🔈 효과음 꺼짐'}
+        </button>
       </header>
 
       <main className="game-container">
@@ -85,7 +129,10 @@ function App() {
           <div className="action-toggles" style={{ display: 'flex', gap: '10px', marginTop: '10px', justifyContent: 'center' }}>
             <button 
               className={`action-btn ${state.currentAction === 'cheer' ? 'active' : ''}`}
-              onClick={() => setAction('cheer')}
+              onClick={() => {
+                setAction('cheer');
+                playSound('action');
+              }}
               disabled={state.hp <= 0}
               style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: state.currentAction === 'cheer' ? '#ff69b4' : '#f0f0f0', color: state.currentAction === 'cheer' ? 'white' : '#333', cursor: state.hp <= 0 ? 'not-allowed' : 'pointer' }}
             >
@@ -93,14 +140,20 @@ function App() {
             </button>
             <button 
               className={`action-btn ${state.currentAction === 'rest' ? 'active' : ''}`}
-              onClick={() => setAction('rest')}
+              onClick={() => {
+                setAction('rest');
+                playSound('action');
+              }}
               style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: state.currentAction === 'rest' ? '#87ceeb' : '#f0f0f0', color: state.currentAction === 'rest' ? 'white' : '#333', cursor: 'pointer' }}
             >
               🛌 휴식
             </button>
             <button 
               className={`action-btn ${state.currentAction === 'train' ? 'active' : ''}`}
-              onClick={() => setAction('train')}
+              onClick={() => {
+                setAction('train');
+                playSound('action');
+              }}
               disabled={state.hp <= 0}
               style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: state.currentAction === 'train' ? '#9370db' : '#f0f0f0', color: state.currentAction === 'train' ? 'white' : '#333', cursor: state.hp <= 0 ? 'not-allowed' : 'pointer' }}
             >
@@ -108,7 +161,10 @@ function App() {
             </button>
             <button 
               className={`action-btn ${state.currentAction === 'interact' ? 'active' : ''}`}
-              onClick={() => setAction('interact')}
+              onClick={() => {
+                setAction('interact');
+                playSound('action');
+              }}
               disabled={state.hp <= 0}
               style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: state.currentAction === 'interact' ? '#ff1493' : '#f0f0f0', color: state.currentAction === 'interact' ? 'white' : '#333', cursor: state.hp <= 0 ? 'not-allowed' : 'pointer' }}
             >
@@ -122,19 +178,28 @@ function App() {
           <div className="tabs">
             <button 
               className={`tab-btn ${activeTab === 'generators' ? 'active' : ''}`}
-              onClick={() => setActiveTab('generators')}
+              onClick={() => {
+                setActiveTab('generators');
+                playSound('action');
+              }}
             >
               프로모션
             </button>
             <button 
               className={`tab-btn ${activeTab === 'upgrades' ? 'active' : ''}`}
-              onClick={() => setActiveTab('upgrades')}
+              onClick={() => {
+                setActiveTab('upgrades');
+                playSound('action');
+              }}
             >
               의상
             </button>
             <button 
               className={`tab-btn ${activeTab === 'prestige' ? 'active' : ''}`}
-              onClick={() => setActiveTab('prestige')}
+              onClick={() => {
+                setActiveTab('prestige');
+                playSound('action');
+              }}
             >
               졸업
             </button>
@@ -146,6 +211,7 @@ function App() {
                 state={state} 
                 getGeneratorCost={getGeneratorCost} 
                 onBuy={buyGenerator} 
+                onPlaySound={playSound}
                 formatNumber={formatNumber} 
               />
             )}
@@ -154,6 +220,7 @@ function App() {
               <Upgrades 
                 state={state} 
                 onBuy={buyUpgrade} 
+                onPlaySound={playSound}
                 formatNumber={formatNumber} 
               />
             )}
@@ -176,6 +243,7 @@ function App() {
                 <button 
                   onClick={() => {
                     if (window.confirm("정말 졸업하시겠습니까? 현재 진행 상황이 초기화됩니다.")) {
+                      playSound('prestige');
                       prestige();
                     }
                   }}
@@ -201,29 +269,46 @@ function App() {
                 onBuyPerk={buyMetaPerk} 
                 onUnlockIdol={unlockIdol} 
                 onChangeIdol={prestige} // 아이돌 변경 시 졸업 로직을 함께 사용한다.
+                onPlaySound={playSound}
                 formatNumber={formatNumber} 
               />
             </>
             )}
 
             {/* 엔딩 해금 표시 */}
-            {state.affection >= MAX_AFFECTION && state.upgrades.includes('upg_romance') && (
+            {endingUnlocked && (
               <div style={{ padding: '20px', textAlign: 'center', background: '#ffe4e1', borderRadius: '12px', border: '2px solid #ff69b4', marginTop: '20px' }}>
                 <h2 style={{ color: '#ff1493' }}>💖 특별 엔딩 해금</h2>
                 <p>호감도를 최대치까지 채우고 고백에 성공했습니다.</p>
-                <button onClick={() => setActiveTab('ending')} style={{ padding: '10px 20px', background: '#ff1493', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>엔딩 보기</button>
+                <button
+                  onClick={() => {
+                    setActiveTab('ending');
+                    playSound('story');
+                  }}
+                  style={{ padding: '10px 20px', background: '#ff1493', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  엔딩 보기
+                </button>
               </div>
             )}
           </div>
         </section>
 
-        {activeTab === 'ending' && state.affection >= MAX_AFFECTION && state.upgrades.includes('upg_romance') && (
+        {activeTab === 'ending' && endingUnlocked && (
           <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
              <img src="/idol_ending_romance.png" alt="고백 엔딩" style={{ maxWidth: '90%', maxHeight: '80vh', objectFit: 'contain', borderRadius: '12px', boxShadow: '0 0 30px rgba(255, 105, 180, 0.5)' }} />
              <div style={{ marginTop: '20px', background: 'white', padding: '20px', borderRadius: '12px', width: '80%', maxWidth: '600px', textAlign: 'center' }}>
                <h2 style={{ color: '#ff69b4', marginBottom: '10px' }}>"항상 곁에서 응원해줘서 고마워요..."</h2>
                <p style={{ color: '#333', fontSize: '1.1rem' }}>"여기까지 올 수 있었던 건 전부 당신 덕분이에요. 이제는 무대 위에서만이 아니라, 앞으로도 계속 함께 빛나고 싶어요."</p>
-               <button onClick={() => setActiveTab('generators')} style={{ marginTop: '20px', padding: '8px 16px', background: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>닫기</button>
+               <button
+                 onClick={() => {
+                   setActiveTab('generators');
+                   playSound('action');
+                 }}
+                 style={{ marginTop: '20px', padding: '8px 16px', background: '#ccc', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+               >
+                 닫기
+               </button>
              </div>
           </div>
         )}
