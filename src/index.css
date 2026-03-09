@@ -1,0 +1,38 @@
+:root {
+  --bg-primary: #fff0f5; /* LavenderBlush */
+  --bg-secondary: #ffe4e1; /* MistyRose */
+  --bg-panel: rgba(255, 255, 255, 0.85);
+  --bg-panel-hover: #fff;
+  
+  --text-main: #5c4059;
+  --text-dim: #8b6e8a;
+  
+  --color-primary: #ff69b4;   /* HotPink */
+  --color-secondary: #dda0dd; /* Plum */
+  --color-accent: #ff1493;    /* DeepPink */
+  --color-success: #ff69b4;
+  
+  --font-main: 'Inter', sans-serif;
+  --font-display: 'M PLUS Rounded 1c', 'Comic Sans MS', cursive, sans-serif;
+  
+  --shadow-soft: 0 8px 32px rgba(255, 105, 180, 0.15);
+  --border-cute: 2px solid #ffb6c1; /* LightPink */
+  --radius-cute: 16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  background-color: var(--bg-primary);
+  background-image: radial-gradient(circle at 50% -20%, var(--bg-secondary), var(--bg-primary) 80%);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+}
