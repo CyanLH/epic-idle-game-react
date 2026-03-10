@@ -28,9 +28,7 @@ export default function GamePage() {
         name: session.user.name || undefined,
         image: session.user.image || undefined,
       }).then((id) => {
-        // This part needs to update the session or trigger a session refresh
-        // to get the new convexId. For now, we'll just log it.
-        console.log("Stored user with Convex ID:", id);
+        setConvexUserId(id);
       }).catch(console.error);
     }
   }, [status, session, convexUserId, storeUser]);
