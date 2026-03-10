@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import '../index.css';
-import '../App.css';
 import { Providers } from '../components/Providers';
 import ConvexClientProvider from '../components/ConvexClientProvider';
 

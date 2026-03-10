@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import App from "../../App";
 import { Id } from "../../../convex/_generated/dataModel";
+import App from "../../App";
 
 export default function GamePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
   const storeUser = useMutation(api.users.storeUser);
   const [convexUserId, setConvexUserId] = useState<Id<"users"> | null>(null);
 
@@ -29,28 +28,40 @@ export default function GamePage() {
         name: session.user.name || undefined,
         image: session.user.image || undefined,
       }).then((id) => {
-        setConvexUserId(id);
+        // This part needs to update the session or trigger a session refresh
+        // to get the new convexId. For now, we'll just log it.
+        console.log("Stored user with Convex ID:", id);
       }).catch(console.error);
     }
   }, [status, session, convexUserId, storeUser]);
 
+// Helper to get safe convex ID
+  const getConvexUserId = () => {
+    if (convexUserId === null) return undefined;
+    if (typeof convexUserId === 'string') return convexUserId as Id<"users">;
+    return convexUserId as Id<"users"> | undefined;
+  };
+
+  const safeUserId = getConvexUserId();
+
   // Load initial game data from Convex
   const initialGameData = useQuery(
     api.game.loadGame,
-    convexUserId ? { userId: convexUserId } : "skip"
+    safeUserId ? { userId: safeUserId } : "skip"
   );
 
-  if (status === "loading" || status === "unauthenticated" || !convexUserId || initialGameData === undefined) {
+  if (status === 'loading' || !initialGameData) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#fff0f5' }}>
-        <h2>인증 및 서버 데이터 연동 중...</h2>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-pink-50 text-gray-800">
+        <h2 className="text-xl font-bold text-primary mb-3">인증 및 서버 데이터 연동 중...</h2>
+        <div className="w-8 h-8 border-4 border-primary border-t-white rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
     <App 
-      convexUserId={convexUserId} 
+      convexUserId={safeUserId} 
       initialServerData={initialGameData} 
     />
   );

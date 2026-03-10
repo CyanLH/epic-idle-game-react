@@ -91,12 +91,11 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
   return (
     <>
       <div 
-        className={`clicker-area ${state.feverTimeLeft > 0 ? 'fever-shake' : ''}`} 
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', position: 'relative' }}
+        className={`w-full h-full flex justify-center items-center relative ${state.feverTimeLeft > 0 ? 'animate-[feverShake_0.5s_infinite]' : ''}`}
       >
-        <div className="waifu-container" style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', transition: 'all 0.5s' }}>
+        <div className="w-full h-full flex justify-center items-end transition-all duration-500">
           {/* Pulsing glow behind the anime girl */}
-          <div className={`waifu-glow ${state.feverTimeLeft > 0 ? 'fever-glow' : ''}`}></div>
+          <div className={`absolute w-4/5 h-4/5 bg-pink-300/30 rounded-full blur-3xl -z-10 ${state.feverTimeLeft > 0 ? 'bg-orange-400/50 animate-pulse' : ''}`}></div>
           
           <img 
             src={determineSprite} 
@@ -116,7 +115,7 @@ export const ClickerArea: React.FC<ClickerAreaProps> = ({ state }) => {
           {particles.map(p => (
             <div 
               key={p.id}
-              className="floating-heart-text"
+              className="absolute pointer-events-none drop-shadow-md select-none animate-[floatUp_1s_ease-out_forwards]"
               style={{
                 left: `${p.x}%`,
                 top: `${p.y}%`,
