@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from 'react';
 import { useGameEngine } from './hooks/useGameEngine';
 import { ClickerArea } from './components/ClickerArea';
