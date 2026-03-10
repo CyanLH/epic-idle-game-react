@@ -4,6 +4,10 @@ import { STORY_EVENTS } from '../config/storyData';
 import { IDOL_CANDIDATES, META_PERKS } from '../config/prestigeData';
 import { MAX_AFFECTION, MAX_CHARM, clampStat } from '../config/balance';
 
+import { Id } from '../../convex/_generated/dataModel';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+
 const SAVE_KEY = 'anime_idle_save';
 
 const createInitialState = (): GameState => ({
@@ -43,7 +47,50 @@ const normalizeGameState = (state: GameState): GameState => {
   };
 };
 
-const loadInitialState = (): GameState => {
+const mergeServerState = (serverData: any): GameState => {
+  const fallback = createInitialState();
+  if (!serverData) return fallback;
+  
+  return normalizeGameState({
+    ...fallback,
+    data: serverData.data ?? fallback.data,
+    totalData: serverData.totalData ?? fallback.totalData,
+    hp: serverData.hp ?? fallback.hp,
+    maxHp: serverData.maxHp ?? fallback.maxHp,
+    charm: serverData.charm ?? fallback.charm,
+    affection: serverData.affection ?? fallback.affection,
+    feverGauge: serverData.feverGauge ?? fallback.feverGauge,
+    generators: serverData.generators ?? fallback.generators,
+    upgrades: serverData.upgrades ?? fallback.upgrades,
+    prestigeLevel: serverData.prestigeLevel ?? fallback.prestigeLevel,
+    prestigeCurrency: serverData.prestigeCurrency ?? fallback.prestigeCurrency,
+    metaPerks: serverData.prestigePerks 
+      ? Object.fromEntries(serverData.prestigePerks.map((p: string) => [p, 1])) // Basic perk mapping for retro-compatibility
+      : fallback.metaPerks,
+    unlockedIdols: serverData.unlockedIdols ?? fallback.unlockedIdols,
+    currentIdolId: serverData.currentIdolId ?? fallback.currentIdolId,
+    lastSavedTime: serverData.lastSavedAt,
+  });
+};
+
+const loadInitialState = (initialServerData?: any): GameState => {
+  if (initialServerData) {
+    const loadedState = mergeServerState(initialServerData);
+    if (loadedState.lastSavedTime) {
+      const offlineSeconds = (Date.now() - loadedState.lastSavedTime) / 1000;
+      if (offlineSeconds > 60) {
+        const tempStats = calculateStats(loadedState);
+        if (tempStats.incomePerSec > 0) {
+          const earned = tempStats.incomePerSec * offlineSeconds;
+          loadedState.data += earned;
+          loadedState.totalData += earned;
+          console.log(`오프라인 경과 시간: ${offlineSeconds.toFixed(0)}초, 서버 기반 획득 하트: ${earned.toFixed(0)}`);
+        }
+      }
+    }
+    return normalizeGameState(loadedState);
+  }
+
   const fallbackState = createInitialState();
 
   try {
@@ -175,23 +222,47 @@ export interface GameState {
   metaPerks: Record<string, number>; // perkId -> level
 }
 
-export const useGameEngine = () => {
-  const [state, setState] = useState<GameState>(loadInitialState);
+export const useGameEngine = (convexUserId?: Id<"users">, initialServerData?: any) => {
+  const [state, setState] = useState<GameState>(() => loadInitialState(initialServerData));
+
+  const saveGameToServer = useMutation(api.game.saveGame);
 
   const lastTickTime = useRef<number | null>(null);
   const reqId = useRef<number | null>(null);
 
-  // 주기적으로 로컬 스토리지에 저장한다.
+  // 주기적으로 서버와 로컬 스토리지에 저장한다. (30초 간격)
   useEffect(() => {
     const saveInterval = setInterval(() => {
       setState(current => {
         const newState = normalizeGameState({ ...current, lastSavedTime: Date.now() });
         localStorage.setItem(SAVE_KEY, JSON.stringify(newState));
+        
+        if (convexUserId) {
+          saveGameToServer({
+            userId: convexUserId,
+            data: newState.data,
+            totalData: newState.totalData,
+            hp: newState.hp,
+            maxHp: newState.maxHp,
+            charm: newState.charm,
+            affection: newState.affection,
+            feverGauge: newState.feverGauge,
+            generators: newState.generators,
+            upgrades: newState.upgrades,
+            prestigeLevel: newState.prestigeLevel,
+            prestigeCurrency: newState.prestigeCurrency,
+            prestigePerks: Object.keys(newState.metaPerks),
+            unlockedIdols: newState.unlockedIdols,
+            currentIdolId: newState.currentIdolId,
+            lastSavedAt: newState.lastSavedTime!,
+          }).catch(console.error);
+        }
+        
         return newState;
       });
-    }, 5000);
+    }, 30000); // Changed to 30 seconds for server-sync
     return () => clearInterval(saveInterval);
-  }, []);
+  }, [convexUserId, saveGameToServer]);
 
   const stats = calculateStats(state);
 

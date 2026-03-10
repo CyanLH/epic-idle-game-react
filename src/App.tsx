@@ -12,8 +12,15 @@ import { MAX_AFFECTION } from './config/balance';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import './App.css';
 
-function App() {
-  const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige, handleStoryChoice, buyMetaPerk, unlockIdol } = useGameEngine();
+import { Id } from '../convex/_generated/dataModel';
+
+interface AppProps {
+  convexUserId?: Id<"users">;
+  initialServerData?: any;
+}
+
+function App({ convexUserId, initialServerData }: AppProps) {
+  const { state, stats, setAction, getGeneratorCost, buyGenerator, buyUpgrade, calculatePrestigeEarned, prestige, handleStoryChoice, buyMetaPerk, unlockIdol } = useGameEngine(convexUserId, initialServerData);
   const [activeTab, setActiveTab] = useState<'generators' | 'upgrades' | 'prestige' | 'ending'>('generators');
   const { soundEnabled, setSoundEnabled, playSound } = useSoundEffects();
   const soundStateRef = useRef({

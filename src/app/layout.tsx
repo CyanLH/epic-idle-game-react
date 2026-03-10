@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '../index.css';
 import '../App.css';
 import { Providers } from '../components/Providers';
+import ConvexClientProvider from '../components/ConvexClientProvider';
 
 export const metadata: Metadata = {
   title: '아이돌 키우기 - 방치형 게임',
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <Providers>{children}</Providers>
+        <ConvexClientProvider>
+          <Providers>{children}</Providers>
+        </ConvexClientProvider>
       </body>
     </html>
   );
