@@ -13,26 +13,26 @@ export default function LoginPage() {
       <div className="absolute top-20 left-20 w-32 h-32 bg-pink-500 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-float-slow" />
       <div className="absolute bottom-20 right-20 w-48 h-48 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-float-slow" style={{ animationDelay: '2s' }} />
 
-      <div className="relative z-10 flex flex-col items-center justify-center p-10 max-w-lg w-full">
+      <div className="relative z-10 flex flex-col items-center justify-center p-6 md:p-10 max-w-lg w-full">
         {/* Game Title Logo */}
-        <div className="mb-12 text-center animate-bounce duration-1000">
-          <h2 className="text-xl md:text-2xl font-bold text-pink-300 tracking-[0.2em] uppercase mb-2 drop-shadow-md">
+        <div className="mb-8 md:mb-12 text-center animate-bounce duration-1000">
+          <h2 className="text-sm sm:text-lg md:text-2xl font-bold text-pink-300 tracking-[0.2em] uppercase mb-1 md:mb-2 drop-shadow-md">
             Idol Raising Project
           </h2>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-pink-200 to-pink-500 drop-shadow-lg tracking-tight font-fredoka py-2">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-pink-200 to-pink-500 drop-shadow-lg tracking-tight font-fredoka py-1 md:py-2 whitespace-nowrap">
             ✨ 오시 클리커 ✨
           </h1>
         </div>
 
         {/* Start Game Box */}
-        <div className="bg-gamePanel/20 backdrop-blur-md p-8 rounded-3xl shadow-[0_0_40px_rgba(255,105,180,0.3)] border-2 border-pink-500/30 text-center w-full">
-          <p className="text-pink-100 mb-8 font-semibold text-lg drop-shadow-sm">
+        <div className="bg-gamePanel/20 backdrop-blur-md p-6 md:p-8 rounded-3xl shadow-[0_0_40px_rgba(255,105,180,0.3)] border-2 border-pink-500/30 text-center w-full mx-4 sm:mx-0">
+          <p className="text-pink-100 mb-6 md:mb-8 font-semibold text-sm md:text-lg drop-shadow-sm">
             데이터를 연동하고 프로듀싱을 시작하세요!
           </p>
           
           <button
             onClick={() => signIn('google', { callbackUrl: '/game' })}
-            className="group relative flex items-center justify-center gap-4 w-full bg-white text-gray-800 font-bold py-4 px-6 rounded-2xl shadow-3d-btn hover:shadow-3d-btn-pressed hover:translate-y-1 transition-all text-xl overflow-hidden"
+            className="group relative flex items-center justify-center gap-2 sm:gap-4 w-full bg-white text-gray-800 font-bold py-3 md:py-4 px-4 md:px-6 rounded-2xl shadow-3d-btn hover:shadow-3d-btn-pressed hover:translate-y-1 transition-all text-base sm:text-lg md:text-xl overflow-hidden"
           >
             {/* Glossy shine effect */}
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />

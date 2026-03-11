@@ -81,40 +81,40 @@ function App({ convexUserId, initialServerData }: AppProps) {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse pointer-events-none" style={{ animationDelay: '1s'}} />
 
       {/* Floating HUD Container */}
-      <div className="absolute top-0 left-0 right-0 z-50 flex justify-between items-start p-4 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-50 flex justify-between items-start p-2 md:p-4 pointer-events-none">
         
         {/* Left HUD: Title & Level */}
         <div className="flex flex-col gap-2 pointer-events-auto">
-          <div className="bg-gamePanel/80 backdrop-blur-md px-6 py-3 rounded-tr-3xl rounded-bl-3xl rounded-tl-lg rounded-br-lg shadow-[0_4px_15px_rgba(0,0,0,0.2)] border-2 border-pink-400/50 flex flex-col items-start transform transition-transform hover:scale-105">
-            <h1 className="text-xl md:text-2xl font-bold text-pink-500 tracking-wider drop-shadow-sm font-fredoka uppercase">
+          <div className="bg-gamePanel/80 backdrop-blur-md px-3 md:px-6 py-2 md:py-3 rounded-tr-3xl rounded-bl-3xl rounded-tl-lg rounded-br-lg shadow-[0_4px_15px_rgba(0,0,0,0.2)] border-2 border-pink-400/50 flex flex-col items-start transform transition-transform hover:scale-105">
+            <h1 className="text-base md:text-2xl font-bold text-pink-500 tracking-wider drop-shadow-sm font-fredoka uppercase leading-none">
               오시 클리커
             </h1>
             {state.prestigeLevel > 0 && (
-              <div className="text-xs font-bold text-white bg-purple-600 px-2 py-0.5 rounded-full mt-1 shadow-inner">
-                Lv. {state.prestigeLevel} <span className="opacity-80">| Bonus +{(state.prestigeCurrency * 10).toFixed(0)}%</span>
+              <div className="text-[10px] md:text-xs font-bold text-white bg-purple-600 px-2 py-0.5 rounded-full mt-1 shadow-inner leading-tight whitespace-nowrap">
+                Lv. {state.prestigeLevel} <span className="opacity-80 hidden md:inline">| Bonus +{(state.prestigeCurrency * 10).toFixed(0)}%</span>
               </div>
             )}
           </div>
         </div>
 
         {/* Center/Right HUD: Resources & Controls */}
-        <div className="flex items-center gap-3 pointer-events-auto">
-          <div className="bg-gamePanel/80 backdrop-blur-md h-12 flex items-center px-4 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.2)] border-2 border-pink-400/50 gap-2">
-            <span className="text-2xl animate-bounce">💕</span>
+        <div className="flex items-center gap-1 md:gap-3 pointer-events-auto">
+          <div className="bg-gamePanel/80 backdrop-blur-md h-10 md:h-12 flex items-center px-2 md:px-4 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.2)] border-2 border-pink-400/50 gap-1 md:gap-2">
+            <span className="text-lg md:text-2xl animate-bounce">💕</span>
             <div className="flex flex-col justify-center">
-              <span className="text-xs font-bold text-pink-500 leading-none">하트</span>
-              <span className="text-lg font-extrabold text-gray-800 leading-none">{formatNumber(state.data)}</span>
+              <span className="text-[10px] md:text-xs font-bold text-pink-500 leading-none">하트</span>
+              <span className="text-sm md:text-lg font-extrabold text-gray-800 leading-none min-w-[2rem] text-center">{formatNumber(state.data)}</span>
             </div>
-            <div className="h-full w-px bg-pink-200 mx-2" />
-            <span className="text-xs font-bold text-gray-500">{formatNumber(stats.incomePerSec)}/s</span>
+            <div className="h-full w-px bg-pink-200 mx-1 md:mx-2" />
+            <span className="text-[10px] md:text-xs font-bold text-gray-500 truncate">{formatNumber(stats.incomePerSec)}/s</span>
           </div>
 
           <button 
-            className={`w-12 h-12 flex items-center justify-center rounded-full font-bold shadow-3d-btn transition-all hover:-translate-y-1 active:shadow-3d-btn-pressed active:translate-y-1 border-2 ${soundEnabled ? 'bg-primary border-pink-400 text-white' : 'bg-gray-300 border-gray-400 text-gray-600'}`} 
+            className={`w-10 h-10 md:w-12 md:h-12 flex shrink-0 items-center justify-center rounded-full font-bold shadow-3d-btn transition-all hover:-translate-y-1 active:shadow-3d-btn-pressed active:translate-y-1 border-2 ${soundEnabled ? 'bg-primary border-pink-400 text-white' : 'bg-gray-300 border-gray-400 text-gray-600'}`} 
             onClick={handleSoundToggle}
             title={soundEnabled ? '효과음 켜짐' : '효과음 꺼짐'}
           >
-            <span className="text-xl">{soundEnabled ? '🔊' : '🔈'}</span>
+            <span className="text-lg md:text-xl">{soundEnabled ? '🔊' : '🔈'}</span>
           </button>
           
           <div className="shadow-lg rounded-full">
@@ -123,8 +123,8 @@ function App({ convexUserId, initialServerData }: AppProps) {
         </div>
       </div>
 
-      <main className="relative z-10 flex flex-1 overflow-hidden p-4 pt-24 gap-4 max-w-7xl mx-auto w-full">
-        <section className="flex-1 min-w-[300px] flex flex-col bg-white/85 rounded-2xl p-5 shadow-sm border-2 border-pink-200 overflow-y-auto relative">
+      <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden p-2 md:p-4 pt-24 md:pt-24 gap-3 md:gap-4 max-w-7xl mx-auto w-full">
+        <section className="w-full lg:flex-1 min-h-[500px] lg:min-w-[300px] flex flex-col bg-white/85 rounded-2xl p-3 md:p-5 shadow-sm border-2 border-pink-200 lg:overflow-y-auto relative shrink-0">
           {/* Removed old text-center data layout since it's now in the HUD */}
 
           <div className="flex flex-col gap-3 p-4 bg-white/40 backdrop-blur-md rounded-2xl mb-4 shadow-inner border-2 border-white/60">
@@ -214,7 +214,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
         </section>
 
         {/* 오른쪽 패널: 상점과 성장 요소 */}
-        <section className="flex-[1.2] min-w-[320px] flex flex-col bg-white/85 rounded-2xl shadow-sm border-2 border-pink-200 overflow-hidden">
+        <section className="w-full lg:flex-[1.2] min-h-[500px] lg:min-w-[320px] flex flex-col bg-white/85 rounded-2xl shadow-sm border-2 border-pink-200 overflow-hidden shrink-0">
           <div className="flex bg-white/50 border-b-2 border-pink-100">
             <button 
               className={`flex-1 py-3 px-2 font-bold text-sm md:text-base border-b-4 transition-colors ${activeTab === 'generators' ? 'border-primary text-primary bg-pink-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
