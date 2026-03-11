@@ -74,14 +74,14 @@ function App({ convexUserId, initialServerData }: AppProps) {
   };
 
   return (
-    <div className="relative flex flex-col h-screen overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-gameBg bg-blend-overlay">
+    <div className="relative flex flex-col min-h-screen md:h-screen md:overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-gameBg bg-blend-overlay selection:bg-pink-500/30">
       {/* Background visual layers for stage effect */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-purple-900 via-pink-800 to-indigo-900 opacity-80 pointer-events-none" />
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-pink-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse pointer-events-none" style={{ animationDelay: '1s'}} />
+      <div className="absolute inset-0 bg-gradient-to-tr from-purple-900 via-pink-800 to-indigo-900 opacity-80 pointer-events-none fixed" />
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-pink-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse pointer-events-none fixed" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse pointer-events-none fixed" style={{ animationDelay: '1s'}} />
 
       {/* Floating HUD Container */}
-      <div className="absolute top-0 left-0 right-0 z-50 flex justify-between items-start p-2 md:p-4 pointer-events-none">
+      <div className="absolute md:fixed top-0 left-0 right-0 z-50 flex justify-between items-start p-2 md:p-4 pointer-events-none">
         
         {/* Left HUD: Title & Level */}
         <div className="flex flex-col gap-2 pointer-events-auto">
@@ -123,7 +123,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
         </div>
       </div>
 
-      <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden p-2 md:p-4 pt-24 md:pt-24 gap-3 md:gap-4 max-w-7xl mx-auto w-full">
+      <main className="relative z-10 flex flex-col lg:flex-row flex-1 md:overflow-hidden p-2 md:p-4 pt-32 sm:pt-28 md:pt-24 gap-3 md:gap-4 max-w-7xl mx-auto w-full mb-8 lg:mb-0">
         <section className="w-full lg:flex-1 lg:min-h-0 flex flex-col bg-white/85 rounded-2xl p-3 md:p-5 shadow-sm border-2 border-pink-200 lg:overflow-y-auto relative shrink-0">
           {/* Removed old text-center data layout since it's now in the HUD */}
 
@@ -236,7 +236,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
             </button>
           </div>
           
-          <div className="flex-1 lg:overflow-y-auto p-2 md:p-4 custom-scrollbar lg:min-h-0 min-h-[400px]">
+          <div className="flex-1 lg:overflow-y-auto p-2 md:p-4 lg:min-h-0 min-h-[400px]">
             {activeTab === 'generators' && (
               <Store 
                 state={state} 
