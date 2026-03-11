@@ -124,7 +124,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
       </div>
 
       <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden p-2 md:p-4 pt-24 md:pt-24 gap-3 md:gap-4 max-w-7xl mx-auto w-full">
-        <section className="w-full lg:flex-1 min-h-[500px] lg:min-w-[300px] flex flex-col bg-white/85 rounded-2xl p-3 md:p-5 shadow-sm border-2 border-pink-200 lg:overflow-y-auto relative shrink-0">
+        <section className="w-full lg:flex-1 lg:min-h-0 flex flex-col bg-white/85 rounded-2xl p-3 md:p-5 shadow-sm border-2 border-pink-200 lg:overflow-y-auto relative shrink-0">
           {/* Removed old text-center data layout since it's now in the HUD */}
 
           <div className="flex flex-col gap-3 p-4 bg-white/40 backdrop-blur-md rounded-2xl mb-4 shadow-inner border-2 border-white/60">
@@ -174,11 +174,11 @@ function App({ convexUserId, initialServerData }: AppProps) {
             </div>
           </div>
           
-          <div className="flex-1 relative flex items-center justify-center min-h-[250px] my-2">
+          <div className="flex-1 relative flex items-center justify-center min-h-[200px] max-h-[35vh] lg:max-h-none my-2 z-0">
             <ClickerArea state={state} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mt-4 justify-center">
+          <div className="grid grid-cols-2 gap-3 mt-4 justify-center relative z-20">
             <button 
               className={`py-4 px-2 text-sm md:text-base font-extrabold rounded-2xl transition-all shadow-3d-btn hover:-translate-y-1 hover:brightness-110 active:shadow-3d-btn-pressed active:translate-y-1 ${state.currentAction === 'cheer' ? 'bg-gradient-to-t from-pink-600 to-pink-400 text-white border-2 border-pink-300 ring-2 ring-pink-500/50' : 'bg-white border-2 border-pink-200 text-pink-600'} ${state.hp <= 0 ? 'opacity-50 grayscale cursor-not-allowed pointer-events-none' : ''}`}
               onClick={() => { setAction('cheer'); playSound('action'); }}
@@ -214,7 +214,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
         </section>
 
         {/* 오른쪽 패널: 상점과 성장 요소 */}
-        <section className="w-full lg:flex-[1.2] min-h-[500px] lg:min-w-[320px] flex flex-col bg-white/85 rounded-2xl shadow-sm border-2 border-pink-200 overflow-hidden shrink-0">
+        <section className="w-full lg:flex-[1.2] lg:min-h-0 lg:min-w-[320px] flex flex-col bg-white/85 rounded-2xl shadow-sm border-2 border-pink-200 lg:overflow-hidden shrink-0">
           <div className="flex bg-white/50 border-b-2 border-pink-100">
             <button 
               className={`flex-1 py-3 px-2 font-bold text-sm md:text-base border-b-4 transition-colors ${activeTab === 'generators' ? 'border-primary text-primary bg-pink-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
@@ -236,7 +236,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
             </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+          <div className="flex-1 lg:overflow-y-auto p-2 md:p-4 custom-scrollbar lg:min-h-0 min-h-[400px]">
             {activeTab === 'generators' && (
               <Store 
                 state={state} 
