@@ -1,5 +1,9 @@
 import type { Metadata } from 'next';
+import { Fredoka, Nunito } from 'next/font/google';
 import '../index.css';
+
+const fredoka = Fredoka({ subsets: ['latin'], variable: '--font-fredoka' });
+const nunito = Nunito({ subsets: ['latin'], weight: ['400', '600', '700', '800'], variable: '--font-nunito' });
 import { Providers } from '../components/Providers';
 import ConvexClientProvider from '../components/ConvexClientProvider';
 
@@ -14,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body>
+    <html lang="ko" className={`${fredoka.variable} ${nunito.variable}`}>
+      <body className="font-nunito bg-gradient-to-br from-pink-50 to-pink-100 min-h-screen text-gray-800 antialiased overflow-hidden selection:bg-pink-300 selection:text-white">
         <ConvexClientProvider>
           <Providers>{children}</Providers>
         </ConvexClientProvider>
