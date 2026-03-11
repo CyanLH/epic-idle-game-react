@@ -74,7 +74,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen md:h-screen md:overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-gameBg bg-blend-overlay selection:bg-pink-500/30">
+    <div className="relative flex flex-col h-[100dvh] overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-gameBg bg-blend-overlay selection:bg-pink-500/30">
       {/* Background visual layers for stage effect */}
       <div className="absolute inset-0 bg-gradient-to-tr from-purple-900 via-pink-800 to-indigo-900 opacity-80 pointer-events-none fixed" />
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-pink-500 rounded-full mix-blend-screen filter blur-[100px] opacity-30 animate-pulse pointer-events-none fixed" />
@@ -123,8 +123,8 @@ function App({ convexUserId, initialServerData }: AppProps) {
         </div>
       </div>
 
-      <main className="relative z-10 flex flex-col lg:flex-row flex-1 md:overflow-hidden p-2 md:p-4 pt-32 sm:pt-28 md:pt-24 gap-3 md:gap-4 max-w-7xl mx-auto w-full mb-8 lg:mb-0">
-        <section className="w-full lg:flex-1 lg:min-h-0 flex flex-col bg-white/85 rounded-2xl p-3 md:p-5 shadow-sm border-2 border-pink-200 lg:overflow-y-auto relative shrink-0">
+      <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden p-2 md:p-4 pt-32 sm:pt-28 md:pt-24 gap-3 md:gap-4 max-w-7xl mx-auto w-full mb-8 lg:mb-0">
+        <section className="w-full lg:flex-1 shrink-0 flex flex-col bg-white/85 rounded-2xl p-3 md:p-5 shadow-sm border-2 border-pink-200">
           {/* Removed old text-center data layout since it's now in the HUD */}
 
           <div className="flex flex-col gap-3 p-4 bg-white/40 backdrop-blur-md rounded-2xl mb-4 shadow-inner border-2 border-white/60">
@@ -214,7 +214,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
         </section>
 
         {/* 오른쪽 패널: 상점과 성장 요소 */}
-        <section className="w-full lg:flex-[1.2] lg:min-h-0 lg:min-w-[320px] flex flex-col bg-white/85 rounded-2xl shadow-sm border-2 border-pink-200 lg:overflow-hidden shrink-0">
+        <section className="w-full lg:flex-[1.2] shrink-0 flex flex-col bg-white/85 rounded-2xl shadow-sm border-2 border-pink-200 lg:overflow-hidden">
           <div className="flex bg-white/50 border-b-2 border-pink-100">
             <button 
               className={`flex-1 py-3 px-2 font-bold text-sm md:text-base border-b-4 transition-colors ${activeTab === 'generators' ? 'border-primary text-primary bg-pink-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}
@@ -236,7 +236,7 @@ function App({ convexUserId, initialServerData }: AppProps) {
             </button>
           </div>
           
-          <div className="flex-1 lg:overflow-y-auto p-2 md:p-4 lg:min-h-0 min-h-[400px]">
+          <div className="flex-1 overflow-y-auto p-2 md:p-4 min-h-[400px]">
             {activeTab === 'generators' && (
               <Store 
                 state={state} 
